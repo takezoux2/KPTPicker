@@ -211,6 +211,13 @@
     p-retry "^4"
     retry "^0.13.1"
 
+"@types/dotenv@^8.2.3":
+  version "8.2.3"
+  resolved "https://registry.yarnpkg.com/@types/dotenv/-/dotenv-8.2.3.tgz#c97b3c5b2e97ff3873793a000999e86cd66ff354"
+  integrity sha512-g2FXjlDX/cYuc5CiQvyU/6kkbP1JtmGzh0obW50zD7OKeILVL0NSpPWLXVfqoAGQjom2/SLLx9zHq0KXvD6mbw==
+  dependencies:
+    dotenv "*"
+
 "@types/node@>=18.0.0":
   version "22.15.21"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.21.tgz#196ef14fe20d87f7caf1e7b39832767f9a995b77"
@@ -291,6 +298,11 @@ delayed-stream@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/delayed-stream/-/delayed-stream-1.0.0.tgz#df3ae199acadfb7d440aaae0b29e2272b24ec619"
   integrity sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==
+
+dotenv@*, dotenv@^16.5.0:
+  version "16.5.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.5.0.tgz#092b49f25f808f020050051d1ff258e404c78692"
+  integrity sha512-m/C+AwOAr9/W1UOIZUo232ejMNnJAJtYQjUbHoNTBNTJSvqzzDh7vnrei3o3r3m9blf6ZoDkvcw0VmozNRFJxg==
 
 dunder-proto@^1.0.1:
   version "1.0.1"

@@ -10,6 +10,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "@types/dotenv": "^8.2.3",
+    "dotenv": "^16.5.0",
     "tsx": "^4.19.4"
   },
   "scripts": {
