@@ -1,4 +1,4 @@
-export type KPTKind = "K" | "P" | "T";
+export type KPTKind = "Keep" | "Problem" | "Try" | "Other";
 
 export type KPTData = {
   kind: KPTKind;

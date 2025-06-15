@@ -1,55 +1,73 @@
 import { WebClient } from "@slack/web-api";
 import { KPTData, KPTKind } from "./KPTData";
+import { kptLabeler } from "./kpt-labeler";
 
 export interface SlackMessage {
   user: string;
   text: string;
-  createdAt: string;
+  createdAt: Date;
 }
 
 /**
- * 指定したSlackチャンネルの全メッセージをKPTData配列で取得します。
+ * 指定したSlackチャンネルの全メッセージをKPTDataとして順次生成するAsyncGenerator
  * @param channelId チャンネルID
  * @param token Slack Bot User OAuth Token
- * @returns KPTData配列
+ * @param before 取得するメッセージの上限時刻（この時刻より古いもののみ）。未指定なら最新から。
  */
-export async function getAllMessagesInChannel(
+export async function* generateKPTDataFromChannel(
   channelId: string,
-  token: string
-): Promise<KPTData[]> {
+  token: string,
+  before?: Date
+): AsyncGenerator<SlackMessage> {
   const client = new WebClient(token);
-  let messages: KPTData[] = [];
   let hasMore = true;
   let cursor: string | undefined = undefined;
+  let latest: string | undefined = before
+    ? Math.floor(before.getTime() / 1000).toString()
+    : undefined;
+
+  // userId→表示名のキャッシュ
+  const userCache: Map<string, string> = new Map();
+  async function getUserName(userId: string): Promise<string> {
+    if (userCache.has(userId)) return userCache.get(userId)!;
+    try {
+      const userInfo = await client.users.info({ user: userId });
+      console.log(`${userId}: Fetching user info for ${userId}`);
+      const name =
+        (userInfo.user &&
+          (userInfo.user.profile?.display_name || userInfo.user.real_name)) ||
+        userId;
+      userCache.set(userId, name);
+      return name;
+    } catch (e) {
+      throw e;
+      // return userId;
+    }
+  }
 
   while (hasMore) {
     const response = await client.conversations.history({
       channel: channelId,
       cursor,
-      limit: 200,
+      limit: 100,
+      ...(latest ? { latest } : {}),
     });
     if (response.messages) {
       for (const msg of response.messages) {
         if (msg.user && msg.text && msg.ts) {
-          // KPTの種別を判定（例: 先頭にK: P: T: などがあればそれをkindにする。なければ"K"）
-          let kind: KPTKind = "K";
-          let text = msg.text.trim();
-          const kindMatch = text.match(/^(K:|P:|T:)(.*)$/i);
-          if (kindMatch) {
-            kind = kindMatch[1].replace(":", "").toUpperCase() as KPTKind;
-            text = kindMatch[2].trim();
-          }
-          messages.push({
-            postUser: msg.user,
-            kind,
+          const text = msg.text.trim();
+          const userName = await getUserName(msg.user);
+          yield {
+            user: userName,
             text,
             createdAt: new Date(Number(msg.ts.split(".")[0]) * 1000),
-          });
+          };
         }
       }
     }
     hasMore = !!response.has_more;
     cursor = response.response_metadata?.next_cursor;
+    // 2ページ目以降はlatestを指定しない（Slack API仕様）
+    latest = undefined;
   }
-  return messages;
 }
